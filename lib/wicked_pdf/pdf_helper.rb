@@ -35,6 +35,29 @@ module PdfHelper
     end
   end
 
+  def render(options = nil, *args, &block)
+    if options.is_a?(Hash) && options.has_key?(:pdf)
+      log_pdf_creation
+      options[:basic_auth] = set_basic_auth(options)
+      make_and_send_pdf(options.delete(:pdf), (WickedPdf.config || {}).merge(options))
+    else
+      super
+      # render_without_wicked_pdf(options, *args, &block)
+    end
+  end
+
+  def render_to_string(options = nil, *args, &block)
+    if options.is_a?(Hash) && options.has_key?(:pdf)
+      log_pdf_creation
+      options[:basic_auth] = set_basic_auth(options)
+      options.delete :pdf
+      make_pdf((WickedPdf.config || {}).merge(options))
+    else
+      super
+      # render_to_string_without_wicked_pdf(options, *args, &block)
+    end
+  end
+
   private
 
     def log_pdf_creation
